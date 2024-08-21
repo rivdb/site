@@ -1,0 +1,69 @@
+---
+layout: post
+title:  "JWT-1"
+description: Understanding JSON Web Tokens
+date:   2024-08-13
+tags: ["Web Exploitation", "LITCTF", "JSON"]
+---
+
+
+
+
+
+## Understanding what a JWT is
+
+The link that I'm given for this challenge is `http://litctf.org:31781/`. Before even messing with it though, I googled "JWT" to get some further context.
+
+I found [this](https://en.wikipedia.org/wiki/JSON_Web_Token) Wikipedia page. The quick summary, however, is this:
+
+```JSON Web Token is a proposed Internet standard for creating data with optional signature and/or optional encryption whose payload holds JSON that asserts some number of claims. The tokens are signed either using a private secret or a public/private key.```
+
+## Attempts
+
+Next, I visited the link, where I was greeted with this:
+
+![Default page for the site](/assets/img/JWT-1/getflag.png)
+
+Naturally, my first response was to hit the giant button that screams "GET FLAG". This obviously didn't provide anything (that'd be too easy, and that's no fun).
+
+![unauthorized screen](/assets/img/JWT-1/unauthorized.png)
+
+Then, I want back to the "Log in" page, and decided to log in with the user `admin` and the password `admin`, since alot of bad sites will use these as the default. This didn't work though, and I started to just try a bunch of different combinations, but each returned the same result:
+
+![login screen](/assets/img/JWT-1/unauthorized.png)
+
+## Getting there...
+
+Finally realizing this challenge wouldn't be **THAT** easy, I opened up [Burp Suite](https://en.wikipedia.org/wiki/Burp_Suite) to try and map out the site (maybe there's a hidden directory!).
+
+I couldn't find any hidden directories though, so I altered my approach, instead of trying to map out the site, I tried intercepting through Burpsuite.
+
+![intercept on burpsuite](/assets/img/JWT-1/intercept.png)
+
+Mostly, it looked like a normal site, but one thing did catch my eye- a cookie with the value of `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTIzIiwiYWRtaW4iOmZhbHNlfQ.0Pi%2FH9Rz7ylX%2FM1MwPS469hjUu3b9gV0%2Fl8EW6roQC0`:
+
+![burpsuite screenshot](/assets/img/JWT-1/burpsuite.png)
+
+This immediately led me to think: "Can I manipulate this token to get admin?.." So, I went back to the "GET FLAG" screen, and decided to inspect element to take a look at the cookies:
+
+![cookies](/assets/img/JWT-1/cookies.png)
+
+For awhile, I messed with the `value` field. I tried changing it to `admin`, `123`, etc. Eventually, the correlation struck me- the "value" is actually a JWT (JSON Web Token)
+
+## The Solution
+
+One of the first results when googling "JWT" is a site called [jwt.io](https://jwt.io/). This site lets us decode and modify JWT tokens, so it's crucial to beating the challenge:
+
+![jwt.io](/assets/img/JWT-1/jwtio.png)
+
+I decided to put the token I had into the "Encoded" field, and noticed that the information in the "PAYLOAD" field reflected the login credentials I had tried earlier.
+
+![payload](/assets/img/JWT-1/jwtpayload.png)
+
+From there, I tried modifying the "admin" value from `false` to `true`, and noticed that the encoded field automatically updated to reflect the changes.
+
+![new token](/assets/img/JWT-1/newjwt.png)
+
+Then, I went back to Burpsuite intercept, and replaced the old  cookie token with the **NEW** token (which is the same token, but with we modified `admin: true`), which for me was. I hit "forward", and got the flag.
+
+flag: `LITCTF{o0ps_forg0r_To_v3rify_1re4DV9}`
