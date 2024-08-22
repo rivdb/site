@@ -52,7 +52,7 @@ This immediately led me to think: "Can I manipulate this token to get admin?.." 
 
 For awhile, I messed with the `value` field. I tried changing it to `admin`, `123`, etc. Eventually, the correlation struck me- the "value" is actually a JWT (JSON Web Token)
 
-## The Solution
+## Solution
 
 One of the first results when googling "JWT" is a site called [jwt.io](https://jwt.io/). This site lets us decode and modify JWT tokens, so it's crucial to beating the challenge:
 

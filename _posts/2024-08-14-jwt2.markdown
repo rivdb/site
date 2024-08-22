@@ -119,7 +119,7 @@ const sign = (payload: object) => {
 
 This removes the `=` characters from both the base64-encoded payload and signature. This is normal in JWTs though, and doesn't affect the token's validity. The main issue here isn't the removal of padding, but making sure that the token **we** craft adheres to this format.
 
-## The Solution
+## Solution
 
 The payload that I came up with:
 
