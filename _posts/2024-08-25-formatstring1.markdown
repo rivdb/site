@@ -1,10 +1,10 @@
 ---
 layout: post
 title:  "Format String 1"
-description: Exploiting a simple number search binary game
+description: Easy format string vulnerability
 date:   2024-08-25
-tags: ["Binary", "Programming", "Binary Search"]
-category: [CTF,N00bzCTF]
+tags: ["Binary Exploitation" "Format String" "Easy"]
+category: [CTF, picoCTF]
 ---
 
 # Challenge Info
