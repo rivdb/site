@@ -4,7 +4,7 @@ title:  "Format String 1"
 subtitle: 2024-08-25
 date:   2024-08-25
 description: Easy format string vulnerability
-tags: ["Binary Exploitation" "Format String" "Easy"]
+tags: ["Binary Exploitation", "Format String", "Easy"]
 category: [CTF, picoCTF]
 ---
 
