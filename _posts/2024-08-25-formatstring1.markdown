@@ -1,17 +1,18 @@
 ---
 layout: post
 title:  "Format String 1"
-description: Easy format string vulnerability
+subtitle: 2024-08-25
 date:   2024-08-25
+description: Easy format string vulnerability
 tags: ["Binary Exploitation" "Format String" "Easy"]
 category: [CTF, picoCTF]
 ---
 
 # Challenge Info
-Patrick and Sponge Bob were really happy with those
+description: `Patrick and Sponge Bob were really happy with those
 orders you made for them, but now they're curious
 about the secret menu. Find it, and along the way,
-maybe you'll find something else of interest!
+maybe you'll find something else of interest!`
 
 Download the binary [here](https://artifacts.picoctf.net/c_mimas/82/format-string-1).
 
