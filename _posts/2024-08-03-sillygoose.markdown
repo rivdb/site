@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Sillygoose"
-description: A simple binary search, number game
+description: Exploiting a simple number search binary game
 date:   2024-08-13
 tags: ["Pwn", "Programming", "Binary Search"]
 category: [CTF,N00bzCTF]
