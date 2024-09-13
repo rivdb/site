@@ -4,7 +4,7 @@ title:  "VNE"
 subtitle: 2024-08-21
 date:   2024-08-21
 description: Abusing environment variables
-tags: ["Binary", "Environment", "Injection"]
+tags: ["Binary", "Environment", "Injection", "Easy"]
 category: [CTF,picoCTF]
 ---
 

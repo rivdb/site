@@ -3,7 +3,7 @@ layout: post
 title:  "Sillygoose"
 description: Exploiting a simple number search binary game
 date:   2024-08-13
-tags: ["Pwn", "Programming", "Binary Search"]
+tags: ["Pwn", "Programming", "Binary Search", "Easy"]
 category: [CTF,N00bzCTF]
 ---
 
