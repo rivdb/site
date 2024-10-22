@@ -3,7 +3,7 @@ layout: post
 title:  "Heap 1"
 description: Writing and understanding a buffer overflow payload
 date:   2024-10-22
-tags: ["Medium", "Heap 1", "Binary Exploitation"]
+tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
 category: [CTF,picoCTF]
 ---
 
@@ -12,7 +12,7 @@ Can you control your overflow? Download the binary [here](https://artifacts.pico
 
 Additional details will be available after launching your challenge instance.
 
-## Understanding vuln.c
+## Understanding chall.c
 
 The code for your convenience:
 ```c
@@ -174,7 +174,7 @@ To clarify, `pico` and `bico` are the values inside the variables (`input_data` 
 
 To understand the distance between each variables, we subtract the address of `pico` with the address of `bico` (or vice verse).
 
-`0x63c3882552b0 - 0x63c3882552d0 = -0x20.` If we run `-0x20` through [cyber chef](https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')To_Decimal('Space',false)&input=LTB4MjA) we get `32`. Because our initial hex value was negative, that means that `safe_var` is 32 bytes behind `input_data`.
+`0x63c3882552b0 - 0x63c3882552d0 = -0x20.` If we run `-0x20` through [cyber chef](https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')To_Decimal('Space',false)&input=LTB4MjA) (from hex to decimal) we get a value of `32`. Because our initial hex value was negative, that means that `safe_var` is 32 bytes behind `input_data`.
 
 ## Solution
 
