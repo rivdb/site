@@ -3,8 +3,8 @@ layout: post
 title:  "Format String 2"
 description: Writing and understanding a format string payload
 date:   2024-08-27
-tags: ["Pwn", "Programming", "Binary Search", "Medium"]
-category: [CTF,N00bzCTF]
+tags: ["Medium", "Format String", "Binary Exploitation"]
+category: [CTF,picoCTF]
 ---
 
 ## Challenge Info
