@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Heap 2"
-description: Writing and understanding a buffer overflow payload
+description: Utilizing a buffer overflow payload to override pointers
 date:   2024-10-22
 tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
 category: [CTF,picoCTF]
