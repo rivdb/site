@@ -2,7 +2,7 @@
 layout: post
 title:  "Heap 3"
 description: Leveraging a UAF vulnerability to manipulate heap allocation
-date:   2024-10-22
+date:   2024-10-26
 tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
 category: [CTF,picoCTF]
 ---
