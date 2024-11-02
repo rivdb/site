@@ -1,0 +1,96 @@
+---
+layout: post
+title:  "Packer"
+description: Reverse engineering a simple linux executable
+date:   2024-10-30
+tags: ["Medium", "Reverse Engineering", "UPX", "Linux Executable"]
+category: [CTF,picoCTF]
+---
+
+## Challenge Info
+Reverse this linux executable?
+
+[binary](https://artifacts.picoctf.net/c_titan/21/out)
+
+## Understanding the file
+
+
+The `file` command will give us some good foundational information as to what we're dealing with.
+
+```terminal
+> file out
+out: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), statically linked, no section header
+```
+For now, all we need to keep in mind:
+
+- It's statically linked, so all of the required libraries are included in this binary, meaning it's all self-contained.
+- The program is a 64-bit ELF *(Executable and Linkable Format)*.
+
+Next, we can run `strings out` to try and see the text inside the binary. For this command, I won't be showing the entire output, since most of it is gibberish, but there is one thing that should catch our eye, and it's all the way at the bottom of the output:
+```terminal
+> strings out
+UPX!
+UPX!
+```
+
+A quick google search on UPX led me to [this](https://upx.github.io/) site, the official UPX site, which states:
+
+> "*UPX is a free, secure, portable, extendable, high-performance executable packer for several executable formats.*"
+
+This leads us to believe that this file has been packed using UPX, so let's try unpacking it.
+
+## Utilizing UPX
+
+To unpack (or uncompress) the binary, we're obviously going to need UPX, since that's what it was compressed with. install UPX on any APT based distros (Kali, Debian, Ubuntu, Mint, etc.), we can run `sudo apt install upx-ucl`.
+
+Now, we just need to find the command to unpack our binary. I personally ran `man upx`, `man` being short for `manual page`- but a quick google search should yield the same result:
+
+> "   Decompress:
+       All UPX supported file formats can be unpacked using the -d switch, eg.  upx -d
+       yourfile.exe will uncompress the file you've just compressed."
+
+So, let's try it out:
+
+```terminal
+> upx -d out
+                       Ultimate Packer for eXecutables
+                          Copyright (C) 1996 - 2024
+UPX 4.2.4       Markus Oberhumer, Laszlo Molnar & John Reiser    May 9th 2024
+
+        File size         Ratio      Format      Name
+   --------------------   ------   -----------   -----------
+[WARNING] bad b_info at 0x4b718
+
+[WARNING] ... recovery at 0x4b714
+
+    877724 <-    336520   38.34%   linux/amd64   out
+
+Unpacked 1 file.
+```
+## Finding the flag
+
+Now that we've successfully unpacked the file, let's try running `strings` again, but this time we're going to combine it with `less`, a command similar to `cat`, but with more features (scrolling, searching).
+
+```terminal
+> strings out | less
+```
+To search for a specific string, enter a simple slash, `/`, and then type what you're looking for (`less` has familiar keybinds to [vim](https://www.vim.org/))
+
+If you prefer `grep` that's alright too either way, we should see what we're looking for.
+```terminal
+> strings out | grep "flag"
+Password correct, please see flag: 7069636f4354467b5539585f556e5034636b314e365f42316e34526933535f33373161613966667d
+(mode_flags & PRINTF_FORTIFY) != 0
+WARNING: Unsupported flag value(s) of 0x%x in DT_FLAGS_1.
+version == NULL || !(flags & DL_LOOKUP_RETURN_NEWEST)
+flag.c
+_dl_x86_hwcap_flags
+_dl_stack_flags
+```
+Obviously, this looks nothing like our flag, so it's likely to be an encrypted flag.
+
+## Decrypting the flag
+
+A great tool for decryption is [Cyberchef](https://gchq.github.io/CyberChef/). We can put our encrypted flag in the "input" field, and under "Operations" we can search for "Magic" and drag that into the "Recipe" field.
+
+flag: `picoCTF{U9X_UnP4ck1N6_B1n4Ri3S_371aa9ff}`

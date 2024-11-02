@@ -5,6 +5,7 @@ description: Leveraging a UAF vulnerability to manipulate heap allocation
 date:   2024-10-26
 tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
 category: [CTF,picoCTF]
+pin: true
 ---
 
 ## Challenge Info
