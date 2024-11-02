@@ -1,0 +1,138 @@
+---
+layout: post
+title:  "Shop"
+description: Learning Ghidra basics
+date:   2024-11-02
+tags: ["Medium", "Reverse Engineering", "Ghidra Basics"]
+category: [CTF,picoCTF]
+---
+
+# Challenge Disclaimer
+For this challenge, I went way more in-depth than I had to, basically ALL of what I found wasn't useful for the beating the challenge, so if you want the actual solution, scroll to the bottom.
+
+
+## Challenge Info
+Best Stuff - Cheap Stuff, Buy Buy Buy... Store Instance: [source](https://mercury.picoctf.net/static/d2c8c9ee59822de6776dd8f20af63b91/source). The shop is open for business at `nc mercury.picoctf.net 34938`.
+
+
+
+## Connecting to the netcat listener
+```terminal
+> nc mercury.picoctf.net 34938
+Welcome to the market!
+=====================
+You have 40 coins
+	Item		Price	Count
+(0) Quiet Quiches	10	12
+(1) Average Apple	15	8
+(2) Fruitful Flag	100	1
+(3) Sell an Item
+(4) Exit
+Choose an option:
+```
+So, we have to figure out some sort of way to exploit this online "shop" (hence the challenge name). Since this is a reverse engineering challenge, let's do some simple reconnaissance on the `source` file we're given.
+
+
+## Gathering basic information
+```terminal
+> file source
+source: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), statically linked, Go BuildID=-vzeqZwk-BVPkjaCfBwI/0p7moXHKZKzCRDvyyGAW/qBY3Sw8xC5RQBA2lE1Ni/wve_VYHzkLpmj9h9LR5b, with debug_info, not stripped
+```
+What this tells us about `source`:
+- 32-bit file
+- ELF (Executable and Linkable Format) binary
+- LSB refers to Little Endian, so the least significant bytes are stored first, which is typical for Intel architectures
+- Statically linked, so the binary includes all its dependencies and libraries within itself, meaning it's all self-contained
+- Not stripped, so it shouldn't be missing any symbols or debugging information, making it easier to reverse engineer
+
+## Analyzing with Ghidra
+
+Let's put it through a reverse engineering tool, I'll be [Ghidra](https://ghidra-sre.org/) for this writeup, but you're welcome to use whatever you prefer:
+1. Open Ghidra
+2. Make a temporary project
+3. Import the file into the project
+4. Double click the file, select "open in default tool"
+
+
+The first thing I like to do is check the Symbol Tree, a hierarchical structure that displays symbols (functions, variables, classes, basically anything that's an important identifier) within the analyzed binary. This is an important thing to know, as it'll help you efficiently analyze.
+
+![get flag](/assets/img/shop/get_flag.png)
+
+Instantly, we notice a function, `get_flag`. We can double click it to further investigate:
+
+```
+
+void main.get_flag(void)
+
+{
+  int *in_GS_OFFSET;
+  undefined4 local_30;
+  undefined4 local_2c;
+  undefined local_1c [12];
+  undefined *local_10;
+  undefined **local_c;
+  undefined4 local_8;
+  undefined4 local_4;
+
+  while (&stack0x00000000 <= *(undefined **)(*(int *)(*in_GS_OFFSET + -4) + 8)) {
+    local_4 = 0x80d453e;
+    runtime.morestack_noctxt();
+  }
+  io/ioutil.ReadFile(&DAT_080fd683,8);
+  main.check(local_30,local_2c);
+  local_8 = 0;
+  local_4 = 0;
+  local_10 = &DAT_080e87c0;
+  local_c = &main.statictmp_14;
+  runtime.convT2Eslice(&DAT_080e2e20,local_1c);
+  fmt.Println(&local_10,2,2);
+  os.Exit(0);
+  return;
+}
+```
+Some things to note:
+- `io/ioutil.ReadFile`, `fmt.Println`, and `os.` seem unusual for C, after some further research, I learned that:
+    - All these functions originate from the [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) programming language
+    - `io/ioutil.ReadFile` is for reading files
+    - `fmt.Println` is for printing to standard output
+    - `os.exit` is for exiting the program
+
+So, it's clear that this is what reads our flag, if we can somehow call this, we'll have our flag.
+
+Let's try and get the address for the `get_flag` function, we can do this by right-clicking `get_flag` in the symbol tree, and selecting "Show references to". The one we want to pay attention to is the "call", it should display that the location of it is `080d3ec3`.
+
+## Solution
+So, this challenge is a bit too easy for it's own good. The actual solution is to just buy negative items to increase our coins, and then buy the flag.
+
+```terminal
+> nc mercury.picoctf.net 34938
+Welcome to the market!
+=====================
+You have 40 coins
+	Item		Price	Count
+(0) Quiet Quiches	10	12
+(1) Average Apple	15	8
+(2) Fruitful Flag	100	1
+(3) Sell an Item
+(4) Exit
+Choose an option:
+0
+How many do you want to buy?
+-20
+You have 240 coins
+	Item		Price	Count
+(0) Quiet Quiches	10	32
+(1) Average Apple	15	8
+(2) Fruitful Flag	100	1
+(3) Sell an Item
+(4) Exit
+Choose an option:
+2
+How many do you want to buy?
+1
+Flag is:  [112 105 99 111 67 84 70 123 98 52 100 95 98 114 111 103 114 97 109 109 101 114 95 98 97 54 98 56 99 100 102 125]
+```
+
+Our flag is given to us in an encrypted format, so let's run it through [Cyberchef](https://gchq.github.io/CyberChef/#recipe=Magic(3,false,false,'')&input=MTEyIDEwNSA5OSAxMTEgNjcgODQgNzAgMTIzIDk4IDUyIDEwMCA5NSA5OCAxMTQgMTExIDEwMyAxMTQgOTcgMTA5IDEwOSAxMDEgMTE0IDk1IDk4IDk3IDU0IDk4IDU2IDk5IDEwMCAxMDIgMTI1) using the `Magic` recipe (make sure to remove the brackets!).
+
+flag: `picoCTF{b4d_brogrammer_ba6b8cdf}`
