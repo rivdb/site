@@ -8,9 +8,4 @@ order: 4
 
 ## On this site, I'll be sharing CTF writeups, threat intelligence blog posts, and more.
 
-### Contact: 
-Signal: @riv.31
-
-Email: love.rivers@proton.me
-
 ![kojiro](/assets/img/doittired.jpg)
