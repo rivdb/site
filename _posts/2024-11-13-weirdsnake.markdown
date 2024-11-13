@@ -167,6 +167,7 @@ Disassembly of <code object <listcomp> at 0x7f704e8a4df0, file "snake.py", line 
 - `STORE_NAME` assigns the list to a variable named "input_list"
 
 This may seem complicated, but the Python code for this looks something like:
+# Initialize with 'J'
 
 ```py
 input_list = [4, 54, 41, 0, 112, 32, 25, 49, 33, 3, 0, 0, 57, 32, ...]
@@ -235,6 +236,7 @@ As we can see, many values are loaded onto a "key" `variable`. If we read it in 
 - `LOAD_CONST ('J')`: We load a constant "J" onto the stack.
 - `STORE_NAME (key_str)`: The value at the top of the stack ("J", in this instance) is popped off the stack and assigned to the variable `key_str`
   - `key_str = "J"`
+
 
 2.
 - `LOAD_CONST ('_')`: We load a constant "\_" onto the stack.
