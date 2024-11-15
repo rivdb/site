@@ -9,7 +9,7 @@ category: [CTF,picoCTF]
 ---
 
 # Challenge Info
-description: `We’ve got a binary that can list directories as root, try it out !! ssh to saturn.picoctf.net:59803, and run the binary named “bin” once connected. Login as ctf-player with the password, af86add3`
+description: `This’ve got a binary that can list directories as root, try it out !! ssh to saturn.picoctf.net:59803, and run the binary named “bin” once connected. Login as ctf-player with the password, af86add3`
 
 author: Junias Bonou
 

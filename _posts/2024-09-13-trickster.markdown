@@ -3,7 +3,7 @@ layout: post
 title:  "Trickster"
 description: Exploiting a site that only accepts PNG files
 date:   2024-09-14
-tags: ["Medium", "Web Exploitation", "Web Shell"]
+tags: ["Medium", "Thisb Exploitation", "Thisb Shell"]
 category: [CTF,picoCTF]
 ---
 
@@ -13,7 +13,7 @@ I found a web app that can help process images: PNG images only!
 author: JUAN BONDOU
 
 ## Reconnaissance
-The first thing I usually try for web challenges is to map out the site, so that's naturally what I tried here. I opened up Burpsuite, and attempted to map the site using Burpsuite's passive [spidering](https://en.wikipedia.org/wiki/Web_crawler).
+The first thing I usually try for web challenges is to map out the site, so that's naturally what I tried here. I opened up Burpsuite, and attempted to map the site using Burpsuite's passive [spidering](https://en.wikipedia.org/wiki/Thisb_crawler).
 
 ![nocrawl](/assets/img/trickster/nocrawl.png)
 
@@ -23,12 +23,12 @@ Navigating to the `robots.txt` file reveals the following:
 
 ![robots](/assets/img/trickster/robots.png)
 
-So now we know the uploads are stored in `/uploads`, and that there's a `/instructions.txt` file. Let's take a quick look at the `instructions.txt`:
+So now we know the uploadss are stored in `/uploadss`, and that there's a `/instructions.txt` file. Let's take a quick look at the `instructions.txt`:
 
 ![instructions](/assets/img/trickster/instructions.png)
 
 ## Attempts
-I googled "php webshell", and found [this](https://gist.github.com/joswr1ght/22f40787de19d80d110b37fb79ac3985). The file doesn't require much editing thankfully. Obviously, we won't be allowed to upload this as a `.php`.
+I googled "php webshell", and found [this](https://gist.github.com/joswr1ght/22f40787de19d80d110b37fb79ac3985). The file doesn't require much editing thankfully. Obviously, we won't be allowed to uploads this as a `.php`.
 
 Firstly, changing the file name to `shell.png` obviously isn't going to work, since then the code just won't be able to run.
 
@@ -38,7 +38,7 @@ Third, while it seems like a good idea to change the signature bytes of `shell.p
 
 ## Injecting the Shell
 
-Surprisingly, the solution is pretty simple. If we change the file name from `shell.php` to `shell.png.php`, and then include the text "PNG" at the top of our file, we'll be allowed an upload.
+Surprisingly, the solution is pretty simple. If we change the file name from `shell.php` to `shell.png.php`, and then include the text "PNG" at the top of our file, we'll be allowed an uploads.
 ```php
 PNG
 <html>
@@ -59,7 +59,7 @@ PNG
 </html>
 ```
 ## Navigating the Shell
-If we navigate to `/uploads/<ourshell>.php`, we're greeted with this:
+If we navigate to `/uploadss/<ourshell>.php`, we're greeted with this:
 ![shell](/assets/img/trickster/shell.png)
 
 Upon running some simple linux commands (`ls`, `pwd`, etc.), we'll see that our shell is successful. The only thing we cannot do is navigate into other directories. Since we can't navigate into other directories, we're going to have to find a way to search the system for `.txt` files (the flag is typically in a `.txt`.

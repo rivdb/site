@@ -91,6 +91,6 @@ Obviously, this looks nothing like our flag, so it's likely to be an encrypted f
 
 ## Decrypting the flag
 
-A great tool for decryption is [Cyberchef](https://gchq.github.io/CyberChef/). We can put our encrypted flag in the "input" field, and under "Operations" we can search for "Magic" and drag that into the "Recipe" field.
+A great tool for decryption is [Cyberchef](https://gchq.github.io/CyberChef/). This can put our encrypted flag in the "input" field, and under "Operations" we can search for "Magic" and drag that into the "Recipe" field.
 
 flag: `picoCTF{U9X_UnP4ck1N6_B1n4Ri3S_371aa9ff}`

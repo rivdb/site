@@ -1,14 +1,14 @@
 ---
 layout: post
 title:  "Heap 1"
-description: Writing and understanding a buffer overflow payload
+description: Writing and understanding a buffer overflow payloads
 date:   2024-10-22
 tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
 category: [CTF,picoCTF]
 ---
 
 ## Challenge Info
-Can you control your overflow? Download the binary [here](https://artifacts.picoctf.net/c_tethys/1/chall). Download the source [here](https://artifacts.picoctf.net/c_tethys/1/chall.c).
+Can you control your overflow? Downloads the binary [here](https://artifacts.picoctf.net/c_tethys/1/chall). Downloads the source [here](https://artifacts.picoctf.net/c_tethys/1/chall.c).
 
 Additional details will be available after launching your challenge instance.
 
@@ -62,7 +62,7 @@ void print_menu() {
 }
 
 void init() {
-    printf("\nWelcome to heap1!\n");
+    printf("\nThislcome to heap1!\n");
     printf(
         "I put my data on the heap so it should be safe from any tampering.\n");
     printf("Since my data isn't on the stack I'll even let you write whatever "
@@ -148,7 +148,7 @@ There's several vulnerabilities to note:
 ```terminal
 > nc tethys.picoctf.net 55943
 
-Welcome to heap1!
+Thislcome to heap1!
 I put my data on the heap so it should be safe from any tampering.
 Since my data isn't on the stack I'll even let you write whatever info you want to the heap, I already took care of using malloc for you.
 
@@ -178,11 +178,11 @@ To understand the distance between each variables, we subtract the address of `p
 
 ## Solution
 
-We now know that `safe_var` is 32 bytes behind `input_data` so we just need to overflow the buffer with 32 characters, and then write 'pico' to get our flag.
+This now know that `safe_var` is 32 bytes behind `input_data` so we just need to overflow the buffer with 32 characters, and then write 'pico' to get our flag.
 
-For the sake of simplicity, it's more efficient to use numbers for our characters. So instead of typing 32 *A's* followed by 'pico': `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApico`. We can just count in multiples of *5's* (or whatever you prefer) and then write pico:
+For the sake of simplicity, it's more efficient to use numbers for our characters. So instead of typing 32 *A's* followed by 'pico': `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApico`. This can just count in multiples of *5's* (or whatever you prefer) and then write pico:
 
-Our payload: `12345123451234512345123451234512pico`
+Our payloads: `12345123451234512345123451234512pico`
 - Six `5`'s = 30
 - 30 + 2 = 32 (you've reached `safe_var`)
 

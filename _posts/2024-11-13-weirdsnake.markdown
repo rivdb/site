@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Weird Snake (work in progress)"
-description: Analyzing Python bytecode
+description: Analyzing bytecode to reverse engineer a XOR key
 date:   2024-11-02
 tags: ["Medium", "Reverse Engineering", "Python"]
 category: [CTF,picoCTF]
@@ -161,47 +161,18 @@ Disassembly of <code object <listcomp> at 0x7f704e8a4df0, file "snake.py", line 
              80 BUILD_LIST              40
              82 STORE_NAME               0 (input_list)
 ```
-- `LOAD_CONST` is called to load several constant values onto the stack.
+- `LOAD_CONST` is called to loads several constant values onto the stack.
   - 4, 54, 41, etc. are being loaded.
 - `BUILD_LIST` is called, it combines the constants that were loaded into a single list. The number **40** in `BUILD_LIST 40` tells the (Python) interpret that the list will contain 40 values.
 - `STORE_NAME` assigns the list to a variable named "input_list"
 
 This may seem complicated, but the Python code for this looks something like:
-# Initialize with 'J'
 
 ```py
 input_list = [4, 54, 41, 0, 112, 32, 25, 49, 33, 3, 0, 0, 57, 32, ...]
 ```
-
-
-
-```bytecode
-84 LOAD_CONST              31 ('J')
-86 STORE_NAME               1 (key_str)
-
-88 LOAD_CONST              32 ('_')
-90 LOAD_NAME                1 (key_str)
-92 BINARY_ADD
-94 STORE_NAME               1 (key_str)
-
-96 LOAD_NAME                1 (key_str)
-98 LOAD_CONST              33 ('o')
-100 BINARY_ADD
-102 STORE_NAME               1 (key_str)
-
-104 LOAD_NAME                1 (key_str)
-106 LOAD_CONST              34 ('3')
-108 BINARY_ADD
-110 STORE_NAME               1 (key_str)
-
-112 LOAD_CONST              35 ('t')
-114 LOAD_NAME                1 (key_str)
-116 BINARY_ADD
-118 STORE_NAME               1 (key_str)
-
-```
-
 ## Initializing `key_str`
+
 
 ```bytecode
 84 LOAD_CONST              31 ('J')
@@ -233,44 +204,44 @@ As we can see, many values are loaded onto a "key" `variable`. If we read it in 
 *Read carefully, as this was designed to confuse you.*
 
 1.
-- `LOAD_CONST ('J')`: We load a constant "J" onto the stack.
-- `STORE_NAME (key_str)`: The value at the top of the stack ("J", in this instance) is popped off the stack and assigned to the variable `key_str`
-  - `key_str = "J"`
+- `LOAD_CONST ('J')`: This loads a constant "J" onto the stack.
+- `STORE_NAME (key_str)`: The value at the top of the stack ("J", in this instance) is popped off the stack and assigned to the variable `key_str`.
+  - `key_str = "J"`.
 
 
 2.
-- `LOAD_CONST ('_')`: We load a constant "\_" onto the stack.
-- `LOAD_NAME (key_str)`: We load `key_str`, which is currently just "J", as previously explained.
-- `BINARY_ADD`: Combines both `_` and `key_str` (again, currently just "J")
-- `STORE_NAME (key_str)`: Stores these changes to `key_str`
-  - `key_str = "J"` --> `key_str = "_J"`
+- `LOAD_CONST ('_')`: This loads a constant "\_" onto the stack.
+- `LOAD_NAME (key_str)`: This loads `key_str`, which is currently just "J", as previously explained.
+- `BINARY_ADD`: Combines both `_` and `key_str` (again, currently just "J").
+- `STORE_NAME (key_str)`: Stores these changes to `key_str`.
+  - `key_str = "J"` --> `key_str = "_J"`.
 
 3.
-- `LOAD_NAME (key_str)`: We load `key_str`
-- `LOAD_CONST ('o')`: We load a constant "o" onto the stack
-- `BINARY_ADD`: Combines both "O" and `key-str`, effectively adding "" to `key_str`
-- `STORE_NAME (key_str)`: Stores these changes to `key_str`
-  - `key_str = "_J"` --> `key_str = "_Jo"`
+- `LOAD_NAME (key_str)`: This loads `key_str`.
+- `LOAD_CONST ('o')`: This loads a constant "o" onto the stack.
+- `BINARY_ADD`: Combines both "O" and `key-str`, effectively adding "" to `key_str`.
+- `STORE_NAME (key_str)`: Stores these changes to `key_str`.
+  - `key_str = "_J"` --> `key_str = "_Jo"`.
 
 4.
-- `LOAD_CONST ('3')`: We load a constant "3" onto the stack
-- `LOAD_NAME (key_str)` We load `key_str`
-- `BINARY_ADD`: We combine "3" and `key_str`
-- `STORE_NAME (key_str)`: Stores this to `key-str`
-  - `key_str = "_Jo"` --> `key_str = "_Jo3"`
+- `LOAD_CONST ('3')`: This loads a constant "3" onto the stack.
+- `LOAD_NAME (key_str)` This loads `key_str`.
+- `BINARY_ADD`: This combine "3" and `key_str`.
+- `STORE_NAME (key_str)`: Stores this to `key-str`.
+  - `key_str = "_Jo"` --> `key_str = "_Jo3"`.
 
 5.
-- `LOAD_CONST ('t')`: We load a constant "t" onto the stack
-- `LOAD_NAME (key_str)`: We load `key_str`
-- `BINARY_ADD`: We combine "t" and `key-str`
-- `STORE_NAME (key_str)`
-  - `key-str = "_Jo3"` --> `key_str = "_Jo3t"`
+- `LOAD_CONST ('t')`: This loads a constant "t" onto the stack.
+- `LOAD_NAME (key_str)`: This loads `key_str`.
+- `BINARY_ADD`: This combine "t" and `key-str`.
+- `STORE_NAME (key_str)`.
+  - `key-str = "_Jo3"` --> `key_str = "_Jo3t"`.
 
-So, now you can see our final key is actually `_Jo3t`, rather than `J_o3t`
+So, now you can see our final key is actually `_Jo3t`, rather than `J_o3t`.
 
 ## Generating `key_list`
 ```bytecode
-120 LOAD_CONST              36 (<code object <listcomp> at ...>)
+120 LOAD_CONST              36 (<code object <listcomp> at 0x7f704e8a4d40, file "snake.py", line 9>) >)
 122 LOAD_CONST              37 ('<listcomp>')
 124 MAKE_FUNCTION            0
 126 LOAD_NAME                1 (key_str)
@@ -278,7 +249,22 @@ So, now you can see our final key is actually `_Jo3t`, rather than `J_o3t`
 130 CALL_FUNCTION            1
 132 STORE_NAME               2 (key_list)
 ```
-- We generate `key_list` by iterating over `key_str`
-- Each character of `key_str` is converted to its Unicode counterpart using `ord()`
+- `120 LOAD_C NST 36(<code object <listcomp> at ..., file "snake.py", line 9>) >)`: This loads a constant at index 36 onto the stack, specifically, a code object for a [list comprehension](https://www.simplilearn.com/tutorials/python-tutorial/list-comprehension-in-python).
+  - Essentially, a piece of code that will create a list. This code object will be used to generate the list later.
+- `122 LOAD_CONST 37 ('<listcomp>')`: This loads a constant at index 37 onto the stack. The constant in this case is the string "\<listcomp>". This will be used to identify this code object as a list comprehension once it's actually executed.
+- `124 MAKE_FUNCTION 0`: This is the simplest one, it simply creates a function from the code object and the string "\<listcomp>" (which will be used for debugging and identification). When this new function object is called, it'll execute the list comprehension code.
+- `126 LOAD_NAME 1 (key_str)`: Loads the `key_str` variable that was explained in the previous section
+- `128 GET_ITER`: Takes the value of `key_str`, which was just loaded, and gets an iterator over it. Assuming that `key_str` is a string, it'll iterate over all its characters.
+- `130 CALL_FUNCTION 1`: Calls the function was made in step 124, it passes the iterator from `key_str` as an argument to the list comprehension. The function runs the list comprehension, which will process the characters from `key_str`.
+- `132 STORE_NAME 2 (key_list)`: The result of the list that was just made is stored in a variable named `key_list`. This is simply the final output of the list comprehension.
 
-## Extending
+In python, this might look something like this:
+```py
+key_list = [item for item in key_str]
+```
+
+This is a simple list comprehension, where each elemtn in the list is an item/character from `key_str`.
+
+## Extending `key_list`
+
+

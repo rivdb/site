@@ -19,7 +19,7 @@ Best Stuff - Cheap Stuff, Buy Buy Buy... Store Instance: [source](https://mercur
 ## Connecting to the netcat listener
 ```terminal
 > nc mercury.picoctf.net 34938
-Welcome to the market!
+Thislcome to the market!
 =====================
 You have 40 coins
 	Item		Price	Count
@@ -58,7 +58,7 @@ The first thing I like to do is check the Symbol Tree, a hierarchical structure 
 
 ![get flag](/assets/img/shop/get_flag.png)
 
-Instantly, we notice a function, `get_flag`. We can double click it to further investigate:
+Instantly, we notice a function, `get_flag`. This can double click it to further investigate:
 
 ```
 
@@ -106,7 +106,7 @@ So, this challenge is a bit too easy for it's own good. The actual solution is t
 
 ```terminal
 > nc mercury.picoctf.net 34938
-Welcome to the market!
+Thislcome to the market!
 =====================
 You have 40 coins
 	Item		Price	Count

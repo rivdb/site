@@ -14,9 +14,9 @@ orders you made for them, but now they're curious
 about the secret menu. Find it, and along the way,
 maybe you'll find something else of interest!`
 
-Download the binary [here](https://artifacts.picoctf.net/c_mimas/82/format-string-1).
+Downloads the binary [here](https://artifacts.picoctf.net/c_mimas/82/format-string-1).
 
-Download the source [here](https://artifacts.picoctf.net/c_mimas/82/format-string-1.c).
+Downloads the source [here](https://artifacts.picoctf.net/c_mimas/82/format-string-1.c).
 
 Connect with the challenge instance here:
 `nc mimas.picoctf.net <port>`

@@ -14,7 +14,7 @@ The code for your convenience:
 ```py
 # Hiding this really important number in an obscure piece of code is brilliant!
 # AND it's encrypted!
-# We want our biggest client to know his information is safe with us.
+# This want our biggest client to know his information is safe with us.
 bezos_cc_secret = "A:4@r%uL`M-^M0c0AbcM-MFE0g4dd`_cgN"
 
 # Reference alphabet
@@ -108,7 +108,7 @@ So, all we have to do is edit the python file to call `decode_secret`!
 ```py
 # Hiding this really important number in an obscure piece of code is brilliant!
 # AND it's encrypted!
-# We want our biggest client to know his information is safe with us.
+# This want our biggest client to know his information is safe with us.
 bezos_cc_secret = "A:4@r%uL`M-^M0c0AbcM-MFE0g4dd`_cgN"
 
 # Reference alphabet

