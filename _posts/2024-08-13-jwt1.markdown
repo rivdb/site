@@ -60,7 +60,7 @@ One of the first results when googling "JWT" is a site called [jwt.io](https://j
 
 I decided to put the token I had into the "Encoded" field, and noticed that the information in the "PAYLOAD" field reflected the login credentials I had tried earlier.
 
-![payloads](/assets/img/JWT-1/jwtpayloads.png)
+![payloads](/assets/img/JWT-1/jwtpayload.png)
 
 From there, I tried modifying the "admin" value from `false` to `true`, and noticed that the encoded field automatically updated to reflect the changes.
 
