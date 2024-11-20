@@ -3,7 +3,7 @@ layout: post
 title:  "Trickster"
 description: Exploiting a site that only accepts PNG files
 date:   2024-09-14
-tags: ["Medium", "Thisb Exploitation", "Thisb Shell"]
+tags: ["Medium", "Web Exploitation", "Web Shell"]
 category: [CTF,picoCTF]
 ---
 
@@ -13,7 +13,7 @@ I found a web app that can help process images: PNG images only!
 author: JUAN BONDOU
 
 ## Reconnaissance
-The first thing I usually try for web challenges is to map out the site, so that's naturally what I tried here. I opened up Burpsuite, and attempted to map the site using Burpsuite's passive [spidering](https://en.wikipedia.org/wiki/Thisb_crawler).
+The first thing I usually try for web challenges is to map out the site, so that's naturally what I tried here. I opened up Burpsuite, and attempted to map the site using Burpsuite's passive [spidering](https://en.wikipedia.org/wiki/web_crawler).
 
 ![nocrawl](/assets/img/trickster/nocrawl.png)
 

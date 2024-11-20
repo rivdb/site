@@ -1,9 +1,9 @@
 ---
 layout: post
 title:  "JWT-2"
-description: Further exploiting JSON Thisb Tokens
+description: Further exploiting JSON Web Tokens
 date:   2024-08-14
-tags: ["Thisb Exploitation", "LITCTF", "JSON", "Easy"]
+tags: ["Web Exploitation", "LITCTF", "JSON", "Easy"]
 category: [CTF,LITCTF]
 ---
 

@@ -63,8 +63,6 @@ def choose_greatest():
     print( "The number with largest positive magnitude is "
         + str(greatest_value) )
 
-decode_secret(bezos_cc_secret)
-
 choose_greatest()
 ```
 

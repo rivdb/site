@@ -1,9 +1,9 @@
 ---
 layout: post
 title:  "JWT-1"
-description: Understanding JSON Thisb Tokens
+description: Understanding JSON Web Tokens
 date:   2024-08-13
-tags: ["Thisb Exploitation", "JSON", "Easy"]
+tags: ["Web Exploitation", "JSON", "Easy"]
 category: [CTF,LITCTF]
 ---
 
@@ -16,9 +16,9 @@ category: [CTF,LITCTF]
 
 The link that I'm given for this challenge is `http://litctf.org:31781/`. Before even messing with it though, I googled "JWT" to get some further context.
 
-I found [this](https://en.wikipedia.org/wiki/JSON_Thisb_Token) Wikipedia page. The quick summary, however, is this:
+I found [this](https://en.wikipedia.org/wiki/JSON_web_Token) Wikipedia page. The quick summary, however, is this:
 
-```JSON Thisb Token is a proposed Internet standard for creating data with optional signature and/or optional encryption whose payloads holds JSON that asserts some number of claims. The tokens are signed either using a private secret or a public/private key.```
+```JSON Web Token is a proposed Internet standard for creating data with optional signature and/or optional encryption whose payloads holds JSON that asserts some number of claims. The tokens are signed either using a private secret or a public/private key.```
 
 ## Attempts
 
@@ -50,7 +50,7 @@ This immediately led me to think: "Can I manipulate this token to get admin?.." 
 
 ![cookies](/assets/img/JWT-1/cookies.png)
 
-For awhile, I messed with the `value` field. I tried changing it to `admin`, `123`, etc. Eventually, the correlation struck me- the "value" is actually a JWT (JSON Thisb Token)
+For awhile, I messed with the `value` field. I tried changing it to `admin`, `123`, etc. Eventually, the correlation struck me- the "value" is actually a JWT (JSON Web Token)
 
 ## Solution
 

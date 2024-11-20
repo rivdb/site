@@ -1,9 +1,10 @@
 ---
 layout: post
-title:  "Weird Snake (work in progress)"
-description: Analyzing bytecode to reverse engineer a XOR key
+title:  "Weird Snake"
+pin: True
+description: Analyzing bytecode to reverse engineer an XOR key
 date:   2024-11-02
-tags: ["Medium", "Reverse Engineering", "Python"]
+tags: ["Medium", "Reverse Engineering", "Python", "Bytecode", "XOR"]
 category: [CTF,picoCTF]
 ---
 ## Challenge Info
@@ -153,7 +154,7 @@ Disassembly of <code object <listcomp> at 0x7f704e8a4df0, file "snake.py", line 
         >>   22 RETURN_VALUE
 ```
 
-## Defining constants, loading values
+## Defining constants, loading values into `input_list`
 ```bytecode
   1           0 LOAD_CONST               0 (4)
               2 LOAD_CONST               1 (54)
@@ -201,7 +202,8 @@ input_list = [4, 54, 41, 0, 112, 32, 25, 49, 33, 3, 0, 0, 57, 32, ...]
 ```
 As we can see, many values are loaded onto a "key" `variable`. If we read it in order, it might seem as though the key is `J_o3t`. **This is not the case.**
 
-*Read carefully, as this was designed to confuse you.*
+> Read carefully, as this was designed to confuse you
+{: .prompt-info}
 
 1.
 - `LOAD_CONST ('J')`: This loads a constant "J" onto the stack.
@@ -259,12 +261,149 @@ So, now you can see our final key is actually `_Jo3t`, rather than `J_o3t`.
 - `132 STORE_NAME 2 (key_list)`: The result of the list that was just made is stored in a variable named `key_list`. This is simply the final output of the list comprehension.
 
 In python, this might look something like this:
+
 ```py
-key_list = [item for item in key_str]
+key_list = [ord(item) for item in key]
 ```
 
 This is a simple list comprehension, where each elemtn in the list is an item/character from `key_str`.
 
-## Extending `key_list`
+## Extending `key_list` if it's shorter than `input_list`
 
+```bytecode
+134 LOAD_NAME                3 (len)
+136 LOAD_NAME                2 (key_list)
+138 CALL_FUNCTION            1
+140 LOAD_NAME                3 (len)
+142 LOAD_NAME                0 (input_list)
+144 CALL_FUNCTION            1
+146 COMPARE_OP               0 (<)
+148 POP_JUMP_IF_FALSE      162
 
+150 LOAD_NAME                2 (key_list)
+152 LOAD_METHOD              4 (extend)
+154 LOAD_NAME                2 (key_list)
+156 CALL_METHOD              1
+158 POP_TOP
+160 JUMP_ABSOLUTE          134
+```
+**The first half (before the line break):**
+- Check lengths:
+  - `len(key_list)` is compared to `len(input_list)`.
+  - If `key_list` is shorter, then it is extended.
+  - Otherwise, it just skips to the next part of the code.
+
+**The second half (after the line break)**
+- Extend `key_list`:
+  - `key_list.extend(key_list)` duplicates `key_list` by adding its contents to itself.
+  - After extending, the program jumps back (`JUMP_ABSOLUTE 134`) to recheck the lengths.
+  - The program will continue to loop until `len(key_list)` is >= `len_(input_list)`.
+
+An example of how this might work:
+
+- Initial Values:
+
+```py
+key_list = [1, 2, 3]
+input_list = [10, 20, 30, 40, 50]
+```
+
+- After extending once:
+
+```py
+key_list = [1, 2, 3, 1, 2, 3]
+```
+
+## XOR operation between `input_list` and `key_list`
+```bytecode
+162 LOAD_CONST              38 (<code object <listcomp> at ...>)
+164 LOAD_CONST              37 ('<listcomp>')
+166 MAKE_FUNCTION            0
+168 LOAD_NAME                5 (zip)
+170 LOAD_NAME                0 (input_list)
+172 LOAD_NAME                2 (key_list)
+174 CALL_FUNCTION            2
+176 GET_ITER
+178 CALL_FUNCTION            1
+180 STORE_NAME               6 (result)
+```
+
+- Offsets `162 - 166`:
+  - A code object for a list comprehension is loaded onto the stack.
+  - A name label for the list comprehension (`<listcomp>`) is loaded, which is used solely for debugging purposes, like I mentioned previously.
+  - The compiled code and its label are combined into a callable function that will execute the list comprehension once it's called.
+  - This list comprehension would look something like this:
+```py
+result = [a ^ b for a, b in zip(input_list, key_list)]
+```
+- Offsets `168`:
+  - The built-in `zip` function is loaded onto the stack.
+  - This function will combine `input_list` and `key_list` into pairs.
+
+- Offsets `170 - 172`:
+  - The variables `input_list` and `key_list` are loaded onto the stack.
+  - Example:
+    - `input_list = [4, 54, 41]`, `key_list = [116, 95, 74]`
+
+> Note that these aren't the actual values, I'm just using them as an example.
+{: .prompt-info }
+
+- Offsets `174 - 180`:
+  - The `zip` function is called with 2 arguments: `input_list` and `key_list`. The result is an iterator of pairs like: `[(4, 116), (54, 95), (41, 74)]`.
+  - `CALL_FUNCTION (1)`: the function created for the list comprehension is called with the iterator of pairs.
+  - `STORE_NAME (result)`: The list that was just created from the list comprehension is stored in the variable `result`.
+
+So, the list comprehension should:
+- Iterate through each pair (a, b) from the zipped object.
+- Compute the XOR (a^b).
+- Add these results to the new list called `result`
+
+## Converting result into text
+```bytecode
+182 LOAD_CONST              39 ('')
+184 LOAD_METHOD              7 (join)
+186 LOAD_NAME                8 (map)
+188 LOAD_NAME                9 (chr)
+190 LOAD_NAME                6 (result)
+192 CALL_FUNCTION            2
+194 CALL_METHOD              1
+196 STORE_NAME              10 (result_text)
+```
+- `result` (which is a list of integers) is converted into characters using `chr()`.
+- These characters are then joined into a single string using `''.join()`.
+- The final output is stored into `result_text` (our flag!).
+
+## Solution
+
+```python
+input_list = []
+
+with open("snake", "r") as file:
+    for line in file:
+        start = line.find("(")
+        end = line.find(")")
+        if start != -1 and end != -1:
+            try:
+                number = int(line[start + 1:end])
+                input_list.append(number)
+            except ValueError:
+                continue
+
+key = "t_Jo3"
+
+key_list = [ord(item) for item in key]
+
+while len(key_list) < len(input_list):
+    key_list.extend(key_list[:len(input_list) - len(key_list)])
+
+result = [a ^ b for a, b in zip(input_list, key_list)]
+
+result_text = ''.join(map(chr, result))
+
+print(result_text)
+```
+
+> Note: The `with` statement before the `key` is to automatically find the values of `input_list`. This isn't necessary of course, it's just to automate this further.
+{: .prompt-info }
+
+flag: `picoCTF{N0t_sO_coNfus1ng_sn@ke_516dfaee}`
