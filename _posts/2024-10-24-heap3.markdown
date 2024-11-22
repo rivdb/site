@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Heap 3"
+pin: True
 description: Leveraging a UAF vulnerability to manipulate heap allocation
 date:   2024-10-26
 tags: ["Medium", "Buffer Overflow", "Binary Exploitation"]
