@@ -154,6 +154,9 @@ Disassembly of <code object <listcomp> at 0x7f704e8a4df0, file "snake.py", line 
         >>   22 RETURN_VALUE
 ```
 
+## Basic understanding
+Right away, we should notice the challenge is to reverse engineer an XOR key. Not only is [XOR](https://www.geeksforgeeks.org/xor-cipher/) explicitly mentioned towards the bottom of the bytecode dump, but the bitwise operations between the two data sets, `input_list` and `key_list` (which we will dive into) gives it away.
+
 ## Defining constants, loading values into `input_list`
 ```bytecode
   1           0 LOAD_CONST               0 (4)
@@ -202,7 +205,7 @@ input_list = [4, 54, 41, 0, 112, 32, 25, 49, 33, 3, 0, 0, 57, 32, ...]
 ```
 As we can see, many values are loaded onto a "key" `variable`. If we read it in order, it might seem as though the key is `J_o3t`. **This is not the case.**
 
-> Read carefully, as this was designed to confuse you
+> Read carefully, as this was designed to confuse you. The order in which the constant is loaded on the stack determines whether it's added to the front or the back of the string.
 {: .prompt-info}
 
 1.
@@ -226,8 +229,8 @@ As we can see, many values are loaded onto a "key" `variable`. If we read it in 
   - `key_str = "_J"` --> `key_str = "_Jo"`.
 
 4.
-- `LOAD_CONST ('3')`: This loads a constant "3" onto the stack.
 - `LOAD_NAME (key_str)` This loads `key_str`.
+- `LOAD_CONST ('3')`: This loads a constant "3" onto the stack.
 - `BINARY_ADD`: This combine "3" and `key_str`.
 - `STORE_NAME (key_str)`: Stores this to `key-str`.
   - `key_str = "_Jo"` --> `key_str = "_Jo3"`.
@@ -237,9 +240,8 @@ As we can see, many values are loaded onto a "key" `variable`. If we read it in 
 - `LOAD_NAME (key_str)`: This loads `key_str`.
 - `BINARY_ADD`: This combine "t" and `key-str`.
 - `STORE_NAME (key_str)`.
-  - `key-str = "_Jo3"` --> `key_str = "_Jo3t"`.
+  - `key-str = "_Jo3"` --> `key_str = "t_Jo3"`.
 
-So, now you can see our final key is actually `_Jo3t`, rather than `J_o3t`.
 
 ## Generating `key_list`
 ```bytecode
@@ -314,7 +316,7 @@ input_list = [10, 20, 30, 40, 50]
 key_list = [1, 2, 3, 1, 2, 3]
 ```
 
-## XOR operation between `input_list` and `key_list`
+## XOR Operation between `input_list` and `key_list`
 ```bytecode
 162 LOAD_CONST              38 (<code object <listcomp> at ...>)
 164 LOAD_CONST              37 ('<listcomp>')
